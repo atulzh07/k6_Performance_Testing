@@ -2,8 +2,11 @@ import http from "k6/http";
 import { sleep } from "k6";
 
 export const options = {
-  vus: 100,
-  duration: "30m",
+  stages: [
+    { duration: "10s", target: 10 }, // Ramp Up testing.
+    { duration: "30s", target: 10 }, // Steady Load
+    { duration: "10s", target: 0 }, // Ramp Down testing.
+  ],
 };
 export default function () {
   http.get("https://test.k6.io");
