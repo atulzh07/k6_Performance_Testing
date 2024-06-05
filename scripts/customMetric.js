@@ -1,6 +1,6 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
-import { Counter } from "k6/metrics";
+import { Counter, Trend } from "k6/metrics";
 
 export const options = {
   vus: 10,
@@ -12,13 +12,19 @@ export const options = {
     http_reqs: ["rate>4"],
     checks: ["rate>=98"],
     counter: ["count>10"],
+    responseNews: ["p(90)>100"],
   },
 };
 
-let Counter = new Counter("counter");
+let counter = new Counter("counter");
+let responseTrend = new Trend("responseNews");
 
 export default function () {
-  const response = http.get("https://test.k6.io");
-  Counter.add(1);
-  sleep(2);
+  let response = http.get("https://test.k6.io");
+  counter.add(1);
+  sleep(1);
+
+  response = http.get("https://test.k6.io/news.php");
+  responseTrend.add(response.timings.duration);
+  sleep(1);
 }
